@@ -8,6 +8,7 @@
 #define MAX_NAME_LENGTH 50
 #define FUEL_PRICE 310.0
 
+// Vehicle structure
 typedef struct {
     char name[20];
     int capacity;
@@ -43,11 +44,7 @@ Vehicle vehicles[3] = {
     {"Lorry", 10000, 80, 45, 4}
 };
 
-
-
-
-
-// Function prototypes
+// Function declarations
 void displayMenu();
 void addCity();
 void renameCity();
@@ -60,13 +57,12 @@ void displayDeliveryRecords();
 void generateReports();
 void saveToFile();
 void loadFromFile();
-int findCity(char*name);
-void clearInputBuffer();
-int findLeastCostRoute(int source, int dest);
+int findCity(char *name);
 float calculateDeliveryCost(int distance, int rate, int weight);
+float calculateFuelCost(int distance, int efficiency);
+int findLeastCostRoute(int source, int dest);
+void clearInputBuffer();
 
-
-// Main function with menu
 int main() {
     int choice;
 
@@ -74,14 +70,16 @@ int main() {
     printf("   LOGISTICS MANAGEMENT SYSTEM\n");
     printf("========================================\n");
 
+    // Load existing data
     loadFromFile();
 
-    while (1) {
+    while(1) {
         displayMenu();
         printf("Enter your choice: ");
         scanf("%d", &choice);
         clearInputBuffer();
-switch(choice) {
+
+        switch(choice) {
             case 1:
                 addCity();
                 break;
@@ -109,18 +107,19 @@ switch(choice) {
             case 9:
                 generateReports();
                 break;
-
- exit(0);
+            case 10:
+                saveToFile();
+                printf("\nData saved successfully!\n");
+                printf("Thank you for using the system!\n");
+                exit(0);
             default:
                 printf("\nInvalid choice! Please try again.\n");
         }
-
-
     }
+
     return 0;
 }
 
-// Menu display function
 void displayMenu() {
     printf("\n========================================\n");
     printf("           MAIN MENU\n");
@@ -137,6 +136,7 @@ void displayMenu() {
     printf("10. Save and Exit\n");
     printf("========================================\n");
 }
+
 void addCity() {
     if(city_count >= MAX_CITIES) {
         printf("\nError: Maximum city limit reached!\n");
@@ -148,30 +148,23 @@ void addCity() {
     fgets(name, MAX_NAME_LENGTH, stdin);
     name[strcspn(name, "\n")] = 0; // Remove newline
 
-
+    // Check if city already exists
+    if(findCity(name) != -1) {
+        printf("\nError: City already exists!\n");
+        return;
+    }
 
     strcpy(cities[city_count], name);
 
-
+    // Initialize distances
     for(int i = 0; i <= city_count; i++) {
         distances[city_count][i] = 0;
         distances[i][city_count] = 0;
     }
-city_count++;
+
+    city_count++;
     printf("\nCity '%s' added successfully!\n", name);
 }
-
-
-
-    int findCity(char*name) {
-    for(int i=0;i<city_count;i++) {
-        if(strcasecmp(cities[i],name) == 0) {
-            return i;
-        }
-    }
-
-    return -1;
-    }
 
 void renameCity() {
     if(city_count == 0) {
@@ -179,7 +172,7 @@ void renameCity() {
         return;
     }
 
-void displayCities();
+    displayCities();
 
     int index;
     printf("\nEnter city number to rename: ");
@@ -205,13 +198,14 @@ void displayCities();
     printf("\nCity '%s' renamed to '%s'\n", cities[index-1], new_name);
     strcpy(cities[index-1], new_name);
 }
+
 void removeCity() {
     if(city_count == 0) {
         printf("\nNo cities available!\n");
         return;
     }
 
-void displayCities();
+    displayCities();
 
     int index;
     printf("\nEnter city number to remove: ");
@@ -225,17 +219,17 @@ void displayCities();
 
     printf("\nCity '%s' removed successfully!\n", cities[index-1]);
 
-
+    // Shift cities
     for(int i = index-1; i < city_count-1; i++) {
         strcpy(cities[i], cities[i+1]);
 
-
+        // Shift distances
         for(int j = 0; j < city_count; j++) {
             distances[i][j] = distances[i+1][j];
         }
     }
 
-
+    // Shift distance columns
     for(int i = 0; i < city_count; i++) {
         for(int j = index-1; j < city_count-1; j++) {
             distances[i][j] = distances[i][j+1];
@@ -244,6 +238,7 @@ void displayCities();
 
     city_count--;
 }
+
 void displayCities() {
     if(city_count == 0) {
         printf("\nNo cities available!\n");
@@ -258,6 +253,7 @@ void displayCities() {
     }
     printf("========================================\n");
 }
+
 void setDistance() {
     if(city_count < 2) {
         printf("\nNeed at least 2 cities to set distance!\n");
@@ -292,13 +288,14 @@ void setDistance() {
         return;
     }
 
-
+    // Set symmetrical distances
     distances[city1-1][city2-1] = dist;
     distances[city2-1][city1-1] = dist;
 
     printf("\nDistance set successfully!\n");
     printf("%s <-> %s: %d km\n", cities[city1-1], cities[city2-1], dist);
 }
+
 void displayDistanceTable() {
     if(city_count == 0) {
         printf("\nNo cities available!\n");
@@ -309,14 +306,14 @@ void displayDistanceTable() {
     printf("        DISTANCE TABLE (km)\n");
     printf("========================================\n");
 
-
+    // Print header
     printf("%-15s", "");
     for(int i = 0; i < city_count; i++) {
         printf("%-10s", cities[i]);
     }
     printf("\n");
 
-
+    // Print distances
     for(int i = 0; i < city_count; i++) {
         printf("%-15s", cities[i]);
         for(int j = 0; j < city_count; j++) {
@@ -326,6 +323,7 @@ void displayDistanceTable() {
     }
     printf("========================================\n");
 }
+
 void processDeliveryRequest() {
     if(city_count < 2) {
         printf("\nNeed at least 2 cities to process delivery!\n");
@@ -430,6 +428,7 @@ void processDeliveryRequest() {
 
     printf("\nDelivery request processed successfully!\n");
 }
+
 void displayDeliveryRecords() {
     if(delivery_count == 0) {
         printf("\nNo delivery records available!\n");
@@ -502,6 +501,54 @@ void generateReports() {
            shortest);
     printf("======================================================\n");
 }
+
+int findLeastCostRoute(int source, int dest) {
+    // Simple approach: check direct route first
+    if(distances[source][dest] > 0) {
+        return distances[source][dest];
+    }
+
+    // If no direct route, try to find route through one intermediate city
+    int min_distance = 999999;
+    int found = 0;
+
+    for(int i = 0; i < city_count; i++) {
+        if(i != source && i != dest) {
+            if(distances[source][i] > 0 && distances[i][dest] > 0) {
+                int total = distances[source][i] + distances[i][dest];
+                if(total < min_distance) {
+                    min_distance = total;
+                    found = 1;
+                }
+            }
+        }
+    }
+
+    if(found) {
+        return min_distance;
+    }
+
+    return 0; // No route found
+}
+
+float calculateDeliveryCost(int distance, int rate, int weight) {
+    return distance * rate * (1.0 + (float)weight / 10000.0);
+}
+
+float calculateFuelCost(int distance, int efficiency) {
+    float fuel_used = (float)distance / efficiency;
+    return fuel_used * FUEL_PRICE;
+}
+
+int findCity(char *name) {
+    for(int i = 0; i < city_count; i++) {
+        if(strcasecmp(cities[i], name) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void saveToFile() {
     // Save cities and distances
     FILE *fp = fopen("routes.txt", "w");
@@ -554,8 +601,8 @@ void loadFromFile() {
     if(fp == NULL) {
         return; // File doesn't exist yet
     }
-}
-  fscanf(fp, "%d\n", &city_count);
+
+    fscanf(fp, "%d\n", &city_count);
     for(int i = 0; i < city_count; i++) {
         fgets(cities[i], MAX_NAME_LENGTH, fp);
         cities[i][strcspn(cities[i], "\n")] = 0;
@@ -594,42 +641,7 @@ void loadFromFile() {
     printf("\nPrevious data loaded successfully!\n");
 }
 
-
 void clearInputBuffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
 }
-int findLeastCostRoute(int source, int dest) {
-    // Simple approach: check direct route first
-    if(distances[source][dest] > 0) {
-        return distances[source][dest];
-    }
-
-    // If no direct route, try to find route through one intermediate city
-    int min_distance = 999999;
-    int found = 0;
-
-    for(int i = 0; i < city_count; i++) {
-        if(i != source && i != dest) {
-            if(distances[source][i] > 0 && distances[i][dest] > 0) {
-                int total = distances[source][i] + distances[i][dest];
-                if(total < min_distance) {
-                    min_distance = total;
-                    found = 1;
-                }
-            }
-        }
-    }
-
-    if(found) {
-        return min_distance;
-    }
-
-    return 0; // No route found
-}
-
-
-float calculateDeliveryCost(int distance, int rate, int weight) {
-    return distance * rate * (1.0 + (float)weight / 10000.0);
-}
-
