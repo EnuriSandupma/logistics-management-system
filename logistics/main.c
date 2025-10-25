@@ -555,6 +555,44 @@ void loadFromFile() {
         return; // File doesn't exist yet
     }
 }
+  fscanf(fp, "%d\n", &city_count);
+    for(int i = 0; i < city_count; i++) {
+        fgets(cities[i], MAX_NAME_LENGTH, fp);
+        cities[i][strcspn(cities[i], "\n")] = 0;
+    }
+
+    for(int i = 0; i < city_count; i++) {
+        for(int j = 0; j < city_count; j++) {
+            fscanf(fp, "%d", &distances[i][j]);
+        }
+    }
+
+    fclose(fp);
+
+    // Load deliveries
+    fp = fopen("deliveries.txt", "r");
+    if(fp == NULL) {
+        return;
+    }
+
+    fscanf(fp, "%d\n", &delivery_count);
+    for(int i = 0; i < delivery_count; i++) {
+        fscanf(fp, "%d %d %d %d %f %f %f %f %f\n",
+               &deliveries[i].source,
+               &deliveries[i].destination,
+               &deliveries[i].weight,
+               &deliveries[i].vehicle_type,
+               &deliveries[i].distance,
+               &deliveries[i].cost,
+               &deliveries[i].time,
+               &deliveries[i].profit,
+               &deliveries[i].customer_charge);
+    }
+
+    fclose(fp);
+
+    printf("\nPrevious data loaded successfully!\n");
+}
 
 
 void clearInputBuffer() {
