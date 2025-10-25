@@ -56,6 +56,9 @@ switch(choice) {
             case 3:
                 removeCity();
                 break;
+            case 4:
+                displayCities();
+                break;
 
  exit(0);
             default:
@@ -190,6 +193,20 @@ void displayCities();
     }
 
     city_count--;
+}
+void displayCities() {
+    if(city_count == 0) {
+        printf("\nNo cities available!\n");
+        return;
+    }
+
+    printf("\n========================================\n");
+    printf("           CITY LIST\n");
+    printf("========================================\n");
+    for(int i = 0; i < city_count; i++) {
+        printf("%d. %s\n", i+1, cities[i]);
+    }
+    printf("========================================\n");
 }
 
 
