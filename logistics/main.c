@@ -27,6 +27,7 @@ void renameCity();
 void removeCity();
 void displayCities();
 void setDistance();
+void displayDistanceTable();
 void loadFromFile();
 int findCity(char*name);
 void clearInputBuffer();
@@ -62,6 +63,9 @@ switch(choice) {
                 break;
             case 5:
                 setDistance();
+                break;
+            case 6:
+                displayDistanceTable();
                 break;
 
  exit(0);
@@ -246,13 +250,41 @@ void setDistance() {
         return;
     }
 
-    // Set symmetrical distances
+
     distances[city1-1][city2-1] = dist;
     distances[city2-1][city1-1] = dist;
 
     printf("\nDistance set successfully!\n");
     printf("%s <-> %s: %d km\n", cities[city1-1], cities[city2-1], dist);
 }
+void displayDistanceTable() {
+    if(city_count == 0) {
+        printf("\nNo cities available!\n");
+        return;
+    }
+
+    printf("\n========================================\n");
+    printf("        DISTANCE TABLE (km)\n");
+    printf("========================================\n");
+
+
+    printf("%-15s", "");
+    for(int i = 0; i < city_count; i++) {
+        printf("%-10s", cities[i]);
+    }
+    printf("\n");
+
+
+    for(int i = 0; i < city_count; i++) {
+        printf("%-15s", cities[i]);
+        for(int j = 0; j < city_count; j++) {
+            printf("%-10d", distances[i][j]);
+        }
+        printf("\n");
+    }
+    printf("========================================\n");
+}
+
 
 
 void loadFromFile() {
