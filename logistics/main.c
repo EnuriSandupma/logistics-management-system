@@ -23,6 +23,8 @@ int city_count = 0;
 // Function prototypes
 void displayMenu();
 void addCity();
+void renameCity();
+void displayCities();
 void loadFromFile();
 int findCity(char*name);
 void clearInputBuffer();
@@ -47,6 +49,10 @@ switch(choice) {
             case 1:
                 addCity();
                 break;
+            case 2:
+                renameCity();
+                break;
+
  exit(0);
             default:
                 printf("\nInvalid choice! Please try again.\n");
@@ -109,6 +115,40 @@ city_count++;
 
     return -1;
     }
+
+void renameCity() {
+    if(city_count == 0) {
+        printf("\nNo cities available!\n");
+        return;
+    }
+
+void displayCities();
+
+    int index;
+    printf("\nEnter city number to rename: ");
+    scanf("%d", &index);
+    clearInputBuffer();
+
+    if(index < 1 || index > city_count) {
+        printf("\nInvalid city number!\n");
+        return;
+    }
+
+    char new_name[MAX_NAME_LENGTH];
+    printf("Enter new name: ");
+    fgets(new_name, MAX_NAME_LENGTH, stdin);
+    new_name[strcspn(new_name, "\n")] = 0;
+
+    // Check if new name already exists
+    if(findCity(new_name) != -1) {
+        printf("\nError: City name already exists!\n");
+        return;
+    }
+
+    printf("\nCity '%s' renamed to '%s'\n", cities[index-1], new_name);
+    strcpy(cities[index-1], new_name);
+}
+
 void loadFromFile() {
     // Load cities and distances
     FILE *fp = fopen("routes.txt", "r");
