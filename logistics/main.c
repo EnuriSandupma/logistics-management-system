@@ -24,6 +24,7 @@ int city_count = 0;
 void displayMenu();
 void addCity();
 void renameCity();
+void removeCity();
 void displayCities();
 void loadFromFile();
 int findCity(char*name);
@@ -51,6 +52,9 @@ switch(choice) {
                 break;
             case 2:
                 renameCity();
+                break;
+            case 3:
+                removeCity();
                 break;
 
  exit(0);
@@ -148,6 +152,46 @@ void displayCities();
     printf("\nCity '%s' renamed to '%s'\n", cities[index-1], new_name);
     strcpy(cities[index-1], new_name);
 }
+void removeCity() {
+    if(city_count == 0) {
+        printf("\nNo cities available!\n");
+        return;
+    }
+
+void displayCities();
+
+    int index;
+    printf("\nEnter city number to remove: ");
+    scanf("%d", &index);
+    clearInputBuffer();
+
+    if(index < 1 || index > city_count) {
+        printf("\nInvalid city number!\n");
+        return;
+    }
+
+    printf("\nCity '%s' removed successfully!\n", cities[index-1]);
+
+
+    for(int i = index-1; i < city_count-1; i++) {
+        strcpy(cities[i], cities[i+1]);
+
+
+        for(int j = 0; j < city_count; j++) {
+            distances[i][j] = distances[i+1][j];
+        }
+    }
+
+
+    for(int i = 0; i < city_count; i++) {
+        for(int j = index-1; j < city_count-1; j++) {
+            distances[i][j] = distances[i][j+1];
+        }
+    }
+
+    city_count--;
+}
+
 
 void loadFromFile() {
     // Load cities and distances
