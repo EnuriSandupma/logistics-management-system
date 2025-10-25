@@ -56,6 +56,7 @@ void displayCities();
 void setDistance();
 void displayDistanceTable();
 void processDeliveryRequest();
+void displayDeliveryRecords();
 void loadFromFile();
 int findCity(char*name);
 void clearInputBuffer();
@@ -99,6 +100,9 @@ switch(choice) {
                 break;
             case 7:
                 processDeliveryRequest();
+                break;
+            case 8:
+                displayDeliveryRecords();
                 break;
 
  exit(0);
@@ -420,6 +424,27 @@ void processDeliveryRequest() {
     printf("======================================================\n");
 
     printf("\nDelivery request processed successfully!\n");
+}
+void displayDeliveryRecords() {
+    if(delivery_count == 0) {
+        printf("\nNo delivery records available!\n");
+        return;
+    }
+
+    printf("\n========================================\n");
+    printf("        DELIVERY RECORDS\n");
+    printf("========================================\n");
+
+    for(int i = 0; i < delivery_count; i++) {
+        printf("\nDelivery #%d\n", i+1);
+        printf("Route: %s -> %s\n", cities[deliveries[i].source], cities[deliveries[i].destination]);
+        printf("Vehicle: %s\n", vehicles[deliveries[i].vehicle_type].name);
+        printf("Weight: %d kg\n", deliveries[i].weight);
+        printf("Distance: %.2f km\n", deliveries[i].distance);
+        printf("Customer Charge: %.2f LKR\n", deliveries[i].customer_charge);
+        printf("Time: %.2f hours\n", deliveries[i].time);
+        printf("----------------------------------------\n");
+    }
 }
 
 
