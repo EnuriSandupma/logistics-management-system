@@ -8,13 +8,40 @@
 #define MAX_NAME_LENGTH 50
 #define FUEL_PRICE 310.0
 
+typedef struct {
+    char name[20];
+    int capacity;
+    int rate_per_km;
+    int avg_speed;
+    int fuel_efficiency;
+} Vehicle;
 
-
+// Delivery record structure
+typedef struct {
+    int source;
+    int destination;
+    int weight;
+    int vehicle_type;
+    float distance;
+    float cost;
+    float time;
+    float profit;
+    float customer_charge;
+} Delivery;
 
 // Global variables
 char cities[MAX_CITIES][MAX_NAME_LENGTH];
 int distances[MAX_CITIES][MAX_CITIES];
 int city_count = 0;
+Delivery deliveries[MAX_DELIVERIES];
+int delivery_count = 0;
+
+// Vehicle types
+Vehicle vehicles[3] = {
+    {"Van", 1000, 60, 12, 12},
+    {"Truck", 5000, 40, 50, 6},
+    {"Lorry", 10000, 80, 45, 4}
+};
 
 
 
@@ -28,9 +55,12 @@ void removeCity();
 void displayCities();
 void setDistance();
 void displayDistanceTable();
+void processDeliveryRequest();
 void loadFromFile();
 int findCity(char*name);
 void clearInputBuffer();
+int findLeastCostRoute(int source, int dest);
+float calculateDeliveryCost(int distance, int rate, int weight);
 
 
 // Main function with menu
@@ -66,6 +96,9 @@ switch(choice) {
                 break;
             case 6:
                 displayDistanceTable();
+                break;
+            case 7:
+                processDeliveryRequest();
                 break;
 
  exit(0);
@@ -284,6 +317,110 @@ void displayDistanceTable() {
     }
     printf("========================================\n");
 }
+void processDeliveryRequest() {
+    if(city_count < 2) {
+        printf("\nNeed at least 2 cities to process delivery!\n");
+        return;
+    }
+
+    if(delivery_count >= MAX_DELIVERIES) {
+        printf("\nError: Maximum delivery limit reached!\n");
+        return;
+    }
+
+    displayCities();
+
+    int source, dest, weight, vehicle_type;
+
+    printf("\nEnter source city number: ");
+    scanf("%d", &source);
+    printf("Enter destination city number: ");
+    scanf("%d", &dest);
+    clearInputBuffer();
+
+    if(source < 1 || source > city_count || dest < 1 || dest > city_count) {
+        printf("\nInvalid city number!\n");
+        return;
+    }
+
+    if(source == dest) {
+        printf("\nError: Source and destination cannot be the same!\n");
+        return;
+    }
+
+    printf("\nVehicle Types:\n");
+    for(int i = 0; i < 3; i++) {
+        printf("%d. %s (Capacity: %d kg, Speed: %d km/h, Rate: %d LKR/km)\n",
+               i+1, vehicles[i].name, vehicles[i].capacity, vehicles[i].avg_speed, vehicles[i].rate_per_km);
+    }
+
+    printf("\nEnter vehicle type (1-3): ");
+    scanf("%d", &vehicle_type);
+    printf("Enter weight (kg): ");
+    scanf("%d", &weight);
+    clearInputBuffer();
+
+    if(vehicle_type < 1 || vehicle_type > 3) {
+        printf("\nInvalid vehicle type!\n");
+        return;
+    }
+
+    if(weight > vehicles[vehicle_type-1].capacity) {
+        printf("\nError: Weight exceeds vehicle capacity!\n");
+        printf("Maximum capacity for %s: %d kg\n", vehicles[vehicle_type-1].name, vehicles[vehicle_type-1].capacity);
+        return;
+    }
+
+    // Find least cost route
+    int min_distance = findLeastCostRoute(source-1, dest-1);
+
+    if(min_distance == 0) {
+        printf("\nError: No route available between these cities!\n");
+        return;
+    }
+
+    // Calculate costs
+    float base_cost = calculateDeliveryCost(min_distance, vehicles[vehicle_type-1].rate_per_km, weight);
+    float fuel_used = (float)min_distance / vehicles[vehicle_type-1].fuel_efficiency;
+    float fuel_cost = fuel_used * FUEL_PRICE;
+    float operational_cost = base_cost + fuel_cost;
+    float profit = base_cost * 0.25;
+    float customer_charge = operational_cost + profit;
+    float time = (float)min_distance / vehicles[vehicle_type-1].avg_speed;
+
+    // Store delivery record
+    deliveries[delivery_count].source = source - 1;
+    deliveries[delivery_count].destination = dest - 1;
+    deliveries[delivery_count].weight = weight;
+    deliveries[delivery_count].vehicle_type = vehicle_type - 1;
+    deliveries[delivery_count].distance = min_distance;
+    deliveries[delivery_count].cost = base_cost;
+    deliveries[delivery_count].time = time;
+    deliveries[delivery_count].profit = profit;
+    deliveries[delivery_count].customer_charge = customer_charge;
+    delivery_count++;
+
+    // Display results
+    printf("\n======================================================\n");
+    printf("           DELIVERY COST ESTIMATION\n");
+    printf("------------------------------------------------------\n");
+    printf("From: %s\n", cities[source-1]);
+    printf("To: %s\n", cities[dest-1]);
+    printf("Minimum Distance: %d km\n", min_distance);
+    printf("Vehicle: %s\n", vehicles[vehicle_type-1].name);
+    printf("Weight: %d kg\n", weight);
+    printf("------------------------------------------------------\n");
+    printf("Base Cost: %.2f LKR\n", base_cost);
+    printf("Fuel Used: %.2f L\n", fuel_used);
+    printf("Fuel Cost: %.2f LKR\n", fuel_cost);
+    printf("Operational Cost: %.2f LKR\n", operational_cost);
+    printf("Profit (25%%): %.2f LKR\n", profit);
+    printf("Customer Charge: %.2f LKR\n", customer_charge);
+    printf("Estimated Time: %.2f hours\n", time);
+    printf("======================================================\n");
+
+    printf("\nDelivery request processed successfully!\n");
+}
 
 
 
@@ -300,3 +437,4 @@ void clearInputBuffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
 }
+
