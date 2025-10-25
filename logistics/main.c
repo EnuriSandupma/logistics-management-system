@@ -58,6 +58,7 @@ void displayDistanceTable();
 void processDeliveryRequest();
 void displayDeliveryRecords();
 void generateReports();
+void saveToFile();
 void loadFromFile();
 int findCity(char*name);
 void clearInputBuffer();
@@ -500,6 +501,51 @@ void generateReports() {
            cities[deliveries[shortest_idx].destination],
            shortest);
     printf("======================================================\n");
+}
+void saveToFile() {
+    // Save cities and distances
+    FILE *fp = fopen("routes.txt", "w");
+    if(fp == NULL) {
+        printf("\nError saving routes data!\n");
+        return;
+    }
+
+    fprintf(fp, "%d\n", city_count);
+    for(int i = 0; i < city_count; i++) {
+        fprintf(fp, "%s\n", cities[i]);
+    }
+
+    for(int i = 0; i < city_count; i++) {
+        for(int j = 0; j < city_count; j++) {
+            fprintf(fp, "%d ", distances[i][j]);
+        }
+        fprintf(fp, "\n");
+    }
+
+    fclose(fp);
+
+    // Save deliveries
+    fp = fopen("deliveries.txt", "w");
+    if(fp == NULL) {
+        printf("\nError saving delivery data!\n");
+        return;
+    }
+
+    fprintf(fp, "%d\n", delivery_count);
+    for(int i = 0; i < delivery_count; i++) {
+        fprintf(fp, "%d %d %d %d %.2f %.2f %.2f %.2f %.2f\n",
+                deliveries[i].source,
+                deliveries[i].destination,
+                deliveries[i].weight,
+                deliveries[i].vehicle_type,
+                deliveries[i].distance,
+                deliveries[i].cost,
+                deliveries[i].time,
+                deliveries[i].profit,
+                deliveries[i].customer_charge);
+    }
+
+    fclose(fp);
 }
 
 void loadFromFile() {
