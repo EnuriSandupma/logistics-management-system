@@ -57,6 +57,7 @@ void setDistance();
 void displayDistanceTable();
 void processDeliveryRequest();
 void displayDeliveryRecords();
+void generateReports();
 void loadFromFile();
 int findCity(char*name);
 void clearInputBuffer();
@@ -103,6 +104,9 @@ switch(choice) {
                 break;
             case 8:
                 displayDeliveryRecords();
+                break;
+            case 9:
+                generateReports();
                 break;
 
  exit(0);
@@ -447,7 +451,56 @@ void displayDeliveryRecords() {
     }
 }
 
+void generateReports() {
+    if(delivery_count == 0) {
+        printf("\nNo deliveries to generate report!\n");
+        return;
+    }
 
+    float total_distance = 0;
+    float total_time = 0;
+    float total_revenue = 0;
+    float total_profit = 0;
+    float longest = 0;
+    float shortest = deliveries[0].distance;
+    int longest_idx = 0, shortest_idx = 0;
+
+    for(int i = 0; i < delivery_count; i++) {
+        total_distance += deliveries[i].distance;
+        total_time += deliveries[i].time;
+        total_revenue += deliveries[i].customer_charge;
+        total_profit += deliveries[i].profit;
+
+        if(deliveries[i].distance > longest) {
+            longest = deliveries[i].distance;
+            longest_idx = i;
+        }
+
+        if(deliveries[i].distance < shortest) {
+            shortest = deliveries[i].distance;
+            shortest_idx = i;
+        }
+    }
+
+    printf("\n======================================================\n");
+    printf("              PERFORMANCE REPORT\n");
+    printf("======================================================\n");
+    printf("Total Deliveries Completed: %d\n", delivery_count);
+    printf("Total Distance Covered: %.2f km\n", total_distance);
+    printf("Average Delivery Time: %.2f hours\n", total_time / delivery_count);
+    printf("Total Revenue: %.2f LKR\n", total_revenue);
+    printf("Total Profit: %.2f LKR\n", total_profit);
+    printf("------------------------------------------------------\n");
+    printf("Longest Route: %s -> %s (%.2f km)\n",
+           cities[deliveries[longest_idx].source],
+           cities[deliveries[longest_idx].destination],
+           longest);
+    printf("Shortest Route: %s -> %s (%.2f km)\n",
+           cities[deliveries[shortest_idx].source],
+           cities[deliveries[shortest_idx].destination],
+           shortest);
+    printf("======================================================\n");
+}
 
 void loadFromFile() {
     // Load cities and distances
