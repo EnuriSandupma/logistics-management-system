@@ -416,6 +416,7 @@ void processDeliveryRequest() {
     printf("Operational Cost: %.2f LKR\n", operational_cost);
     printf("Profit (25%%): %.2f LKR\n", profit);
     printf("Customer Charge: %.2f LKR\n", customer_charge);
+    printf("Estimated Time: %.2f hours\n", time);
     printf("======================================================\n");
 
     printf("\nDelivery request processed successfully!\n");
