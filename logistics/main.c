@@ -416,7 +416,6 @@ void processDeliveryRequest() {
     printf("Operational Cost: %.2f LKR\n", operational_cost);
     printf("Profit (25%%): %.2f LKR\n", profit);
     printf("Customer Charge: %.2f LKR\n", customer_charge);
-    printf("Estimated Time: %.2f hours\n", time);
     printf("======================================================\n");
 
     printf("\nDelivery request processed successfully!\n");
@@ -436,5 +435,38 @@ void loadFromFile() {
 void clearInputBuffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
+}
+int findLeastCostRoute(int source, int dest) {
+    // Simple approach: check direct route first
+    if(distances[source][dest] > 0) {
+        return distances[source][dest];
+    }
+
+    // If no direct route, try to find route through one intermediate city
+    int min_distance = 999999;
+    int found = 0;
+
+    for(int i = 0; i < city_count; i++) {
+        if(i != source && i != dest) {
+            if(distances[source][i] > 0 && distances[i][dest] > 0) {
+                int total = distances[source][i] + distances[i][dest];
+                if(total < min_distance) {
+                    min_distance = total;
+                    found = 1;
+                }
+            }
+        }
+    }
+
+    if(found) {
+        return min_distance;
+    }
+
+    return 0; // No route found
+}
+
+
+float calculateDeliveryCost(int distance, int rate, int weight) {
+    return distance * rate * (1.0 + (float)weight / 10000.0);
 }
 
