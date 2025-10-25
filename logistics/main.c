@@ -26,6 +26,7 @@ void addCity();
 void renameCity();
 void removeCity();
 void displayCities();
+void setDistance();
 void loadFromFile();
 int findCity(char*name);
 void clearInputBuffer();
@@ -58,6 +59,9 @@ switch(choice) {
                 break;
             case 4:
                 displayCities();
+                break;
+            case 5:
+                setDistance();
                 break;
 
  exit(0);
@@ -207,6 +211,47 @@ void displayCities() {
         printf("%d. %s\n", i+1, cities[i]);
     }
     printf("========================================\n");
+}
+void setDistance() {
+    if(city_count < 2) {
+        printf("\nNeed at least 2 cities to set distance!\n");
+        return;
+    }
+
+    displayCities();
+
+    int city1, city2, dist;
+    printf("\nEnter first city number: ");
+    scanf("%d", &city1);
+    printf("Enter second city number: ");
+    scanf("%d", &city2);
+    clearInputBuffer();
+
+    if(city1 < 1 || city1 > city_count || city2 < 1 || city2 > city_count) {
+        printf("\nInvalid city number!\n");
+        return;
+    }
+
+    if(city1 == city2) {
+        printf("\nError: Cannot set distance from a city to itself!\n");
+        return;
+    }
+
+    printf("Enter distance (km): ");
+    scanf("%d", &dist);
+    clearInputBuffer();
+
+    if(dist < 0) {
+        printf("\nError: Distance cannot be negative!\n");
+        return;
+    }
+
+    // Set symmetrical distances
+    distances[city1-1][city2-1] = dist;
+    distances[city2-1][city1-1] = dist;
+
+    printf("\nDistance set successfully!\n");
+    printf("%s <-> %s: %d km\n", cities[city1-1], cities[city2-1], dist);
 }
 
 
